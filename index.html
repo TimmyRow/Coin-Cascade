@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101528">
+  <meta name="description" content="Coin Cascade — a tactile browser clicker about catching coins and choosing where the rest land.">
+  <title>Coin Cascade</title>
+  <link rel="icon" type="image/png" href="assets/shiny-coin.png">
+  <link rel="apple-touch-icon" href="assets/shiny-coin.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand"><img class="brand-coin" src="assets/shiny-coin.png" alt="Shiny Coin Cascade coin"><span>COIN <b>CASCADE</b></span></div>
+      <div class="top-stats">
+        <div class="stat"><span>VAULT</span><strong id="coinTotal">0</strong></div>
+        <div class="stat"><span>PER TAP</span><strong id="tapValue">1</strong></div>
+        <div class="stat combo-stat"><span>COMBO</span><strong id="comboValue">×1.0</strong></div>
+      </div>
+      <div class="top-actions"><button id="resetButton" class="text-button danger-button">RESET</button><button id="soundToggle" class="icon-button" aria-label="Toggle sound">◖</button></div>
+    </header>
+
+    <section class="game-layout">
+      <aside class="upgrade-panel panel">
+        <div class="section-title"><span>VAULT TUNING</span><i></i></div>
+        <div id="upgrades" class="upgrade-list"></div>
+        <div class="achievement-card">
+          <div class="section-title"><span>ACHIEVEMENTS</span><i></i></div>
+          <div id="achievementList" class="achievement-list"></div>
+        </div>
+        <div class="skin-card">
+          <span class="eyebrow">COIN SKINS</span>
+          <strong id="skinName">Classic Mint</strong>
+          <div id="skinRack" class="skin-rack" aria-label="Coin skin selector"></div>
+        </div>
+        <div class="prestige-card">
+          <div class="section-title"><span>FOUNDRY PRESTIGE</span><i></i></div>
+          <strong><span id="coreTotal">0</span> FOUNDRY CORES</strong>
+          <p id="prestigeCopy">Reforge after 10,000 earned coins to gain a permanent core.</p>
+          <div class="progress"><span id="prestigeProgress"></span></div>
+          <button id="prestigeButton" class="prestige-button" disabled>REFORGE MINT</button>
+          <div id="skillList" class="skill-list"></div>
+        </div>
+      </aside>
+
+      <section class="play-panel" aria-label="Coin Cascade game area">
+        <div class="play-heading">
+          <div><span class="eyebrow">LIVE VAULT FEED</span><h1>MAKE IT <em>RAIN.</em></h1></div>
+          <button id="helpButton" class="text-button">HOW TO PLAY</button>
+        </div>
+        <div class="canvas-frame">
+          <canvas id="gameCanvas" width="1050" height="620" aria-label="Click the vault, then catch coins as they rain down from the ceiling"></canvas>
+          <button id="vaultButton" class="vault-button" aria-label="Mint a coin"><span class="vault-spark">✦</span><span>COIN</span><small>CLICK / TAP</small></button>
+          <div id="toast" class="toast" aria-live="polite"></div>
+          <div id="overdrive" class="overdrive">OVERDRIVE <span id="overdriveTime">0.0</span>s</div>
+        </div>
+        <div class="bay-key" aria-label="Coin guide">
+          <span class="gold-guide"><b class="gold-dot"></b>GOLD COINS <i>catch them before they hit the floor</i></span>
+        </div>
+        <section class="reward-station" aria-label="Optional rewarded boosts">
+          <div><span class="eyebrow">OPTIONAL BOOSTS</span><strong>Choose a short ad for a temporary mint boost.</strong><small id="rewardStatus">One reward at a time · 2 minutes between videos.</small></div>
+          <div class="reward-actions">
+            <button class="reward-button" data-reward="double"><span>🎬</span> DOUBLE COINS <small>1 MIN</small></button>
+            <button class="reward-button" data-reward="auto"><span>🎬</span> AUTOCOIN <small>5 MIN</small></button>
+          </div>
+        </section>
+      </section>
+
+      <aside class="intel-panel panel">
+        <div class="section-title"><span>CASCADE LOG</span><i></i></div>
+        <div class="large-counter"><span>COINS CAUGHT</span><strong id="caughtTotal">0</strong><small>Keep the cascade alive</small></div>
+        <div class="large-counter"><span>BEST COMBO</span><strong id="bestCombo">×1.0</strong><small>Keep catching to build it</small></div>
+        <div class="event-log" id="eventLog"></div>
+      </aside>
+    </section>
+  </main>
+
+  <dialog id="helpDialog" class="help-dialog">
+    <button id="closeHelp" class="close-button" aria-label="Close help">×</button>
+    <span class="eyebrow">COIN CASCADE // FIELD GUIDE</span>
+    <h2>Catch it — or let it <em>land.</em></h2>
+    <p>Tap <b>COIN</b> to print gold coins. Catch them before they land to build a streak—some upgrades trigger a bonus shower, slow rain, or special stamped coin.</p>
+    <div class="help-grid single-help">
+      <article><b class="gold-dot"></b><h3>Gold Coins</h3><p>Every catch pays out and pushes your combo higher. Keep the board clear: a streak unlocks the big bonus moments.</p></article>
+    </div>
+    <button id="startButton" class="primary-button">START PRINTING</button>
+  </dialog>
+  <dialog id="resetDialog" class="confirm-dialog">
+    <span class="eyebrow">RESET MINT</span>
+    <h2>Start completely over?</h2>
+    <p>Are you sure you want to reset the game? You will lose all progress.</p>
+    <div class="dialog-actions"><button id="cancelReset" class="text-button">CANCEL</button><button id="confirmReset" class="danger-confirm">RESET EVERYTHING</button></div>
+  </dialog>
+  <dialog id="prestigeDialog" class="confirm-dialog">
+    <span class="eyebrow">FOUNDRY REFORGE</span>
+    <h2>Reforge your mint?</h2>
+    <p id="prestigeDialogCopy">This ends your current run, resets mint upgrades and coins, and awards Foundry Cores for permanent skills.</p>
+    <div class="dialog-actions"><button id="cancelPrestige" class="text-button">NOT YET</button><button id="confirmPrestige" class="primary-button">REFORGE</button></div>
+  </dialog>
+  <dialog id="rewardDialog" class="confirm-dialog reward-dialog">
+    <span class="eyebrow">OPTIONAL REWARDED VIDEO</span>
+    <h2 id="rewardTitle">Activate a boost?</h2>
+    <p id="rewardCopy">Watch a short video, then return straight to your mint with this boost active.</p>
+    <div class="dialog-actions"><button id="cancelReward" class="text-button">NOT NOW</button><button id="confirmReward" class="primary-button">🎬 WATCH AD</button></div>
+  </dialog>
+  <script src="game.js"></script>
+</body>
+</html>
